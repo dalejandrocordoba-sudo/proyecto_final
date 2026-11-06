@@ -5,7 +5,9 @@ project(proyecto_final LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(proyecto_final main.cpp)
+add_executable(proyecto_final main.cpp
+    agente.cpp
+    agente.h)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final
