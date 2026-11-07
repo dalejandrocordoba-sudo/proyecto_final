@@ -7,7 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(proyecto_final main.cpp
     agente.cpp
-    agente.h)
+    agente.h
+    memoria.h
+    memoria.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final
