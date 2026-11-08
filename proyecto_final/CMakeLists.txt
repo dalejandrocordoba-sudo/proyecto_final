@@ -6,10 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(proyecto_final main.cpp
-    agente.cpp
+    Agente.cpp
     agente.h
     memoria.h
-    memoria.cpp)
+    memoria.cpp
+    enemigo.h
+    enemigo.cpp
+    enemigo.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final
