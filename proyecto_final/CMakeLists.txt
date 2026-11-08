@@ -13,7 +13,11 @@ add_executable(proyecto_final main.cpp
     enemigo.h
     enemigo.cpp
     enemigo.cpp
-    agente.cpp)
+    agente.cpp
+    balaagente.h
+    balaagente.cpp
+    proyectil.h
+    proyectil.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final
