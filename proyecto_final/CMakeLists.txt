@@ -25,6 +25,7 @@ add_executable(proyecto_final main.cpp
     entidad.h
     entidad.cpp
     juego.h
+    juego.cpp
 )
 
 target_link_libraries(proyecto_final PRIVATE Qt6::Widgets)

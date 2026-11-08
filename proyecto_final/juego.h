@@ -108,9 +108,30 @@ private:
     void iratitulo();
     void cargarnivel (int n);
     void iniciarnivel (int n, int puntos, int vidad);
+    void terminarnivel(estado nuevo, const QString &texto);
+    void limpiar();
+    void generarguion();
+    void generarevento(const evento &ev);
+    void actualizarjuego( double dt);
+    void actualizarmonumento();
+    void sincronizar ();
+    void colisiones();
+    void actualizarhud ();
+    void lanzarlata();
+    void disparar(enemigo *e);
+    void actualizarjefe(double dt);
+    void dispararjefe();
+    void mostrarpaneljefe(double dt);
+    void golpe();
+    void mostrarmensaje(const QString &texto);
+    QString textotitulo() const;
+    void quitarenemigo(int i );
+    QGraphicsPixmapItem* crearitem(entidad *e,const QPixmap &pix, int z);
+    QRectF cajade(entidad *e, qreal ix, qreal iy) const;
 
+    template <typename t>
 
-}
+    void quitar(QVector<t*> &v, int i);
 
 };
 
