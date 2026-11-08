@@ -17,7 +17,9 @@ add_executable(proyecto_final main.cpp
     balaagente.h
     balaagente.cpp
     proyectil.h
-    proyectil.cpp)
+    proyectil.cpp
+    entidad.h
+    entidad.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final
