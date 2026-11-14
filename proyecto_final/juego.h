@@ -6,10 +6,10 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsRectItem>
 #include <QElapsedTimer>
-#include <Qhash>
+#include <QHash>
 #include <QString>
 #include <QTimer>
-#include <Qvector>
+#include <QVector>
 
 #include "animacion.h"
 #include "fondoparallax.h"
