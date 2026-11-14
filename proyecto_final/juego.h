@@ -6,10 +6,10 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsRectItem>
 #include <QElapsedTimer>
-#include <Qhash>
+#include <QHash>
 #include <QString>
 #include <QTimer>
-#include <Qvector>
+#include <QVector>
 
 #include "animacion.h"
 #include "fondoparallax.h"
@@ -45,7 +45,7 @@ private:
         QString nombre, meta, monumento;
         QVector<capacfg> capas;
         double velmundo = 260;
-        int nenemigos = 0, nbaches = 0, nllantas = 0, nlatas = 0, nzartigueyas = 0;
+        int nenemigos = 0, nbaches = 0, nllantas = 0, nlatas = 0, nzarigueyas = 0;
         int espaciomin = 420, espacioextra = 120;
         double factorcadencia = 1.0;
         bool avalancha = false;
@@ -66,7 +66,7 @@ private:
     int puntosinicionivel = 0,vidasinicionivel = 3 ;
 
     animacion animpedaleo, animlanzar, animenemigo;
-    QPixmap pixsalto,pixlata,pixlavolamdo,pixhue,pixllanta,pixbala,pixcongelado,pixvida;
+    QPixmap pixsalto,pixlata,pixlatavolando,pixhue,pixllanta,pixbala,pixcongelado,pixvida;
     QPixmap pixzarigueya, pixrueda;
     QPixmap pixjefequieto,pixcongeladojefe,pixbalajefe;
     animacion animjefe;
