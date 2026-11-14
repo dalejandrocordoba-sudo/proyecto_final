@@ -12,7 +12,7 @@
 #include <algorithm>
 
 namespace {
-const int ancho= 1280;
+const int ancho = 1280;
 const int alto = 720;
 const double suelo = 655.0;
 const double x_pepsi = 190.0;
@@ -77,15 +77,78 @@ juego::confignivel juego::confignivel(int n) {
         c.factorcadencia = 0.8;
         c.avalancha = true;
         c.jefe = true;
+    }
+    return c;
+}
 
+juego::juego(QWidget *parent) : QGraphicsView(parent) {
+    escena = new QGraphicsScene(0,0,ancho,alto,this);
+    setScene(escena);
+    resize(ancho,alto);
+    setWindowTitle("pepsiman da la vuelta a colombia");
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setFrameShape(QFrame::NoFrame)
+    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    setFocusPolicy(Qt::StrongFocus);
 
+    dificultad = creardificultad(dificultadelegida);
+    fondo = new fondoparallax(escena);
 
+    animpedaleo = animacion("pepsiman_pedalear_A",9,14);
+    animlanzar = animacion("pepsiman_lanzar",4,14,false);
+    animenemigo = animacion("bandolero_correr",7,10);
+    pixsalto = cargarsprite(":/pepsiman_pedalear_B_01.png");
+    pixlata = cargarsprite(":/sixpack.png").scaledToHeight(48,Qt::SmoothTransformation);
+    pixlatavolando = cargarsprite(":/lata_volando.png").scaledToWidth(44, Qt::SmoothTransformation);
+    pixhueco = cargarsprite(":/hueco.png").scaledToWidth(170,Qt::SmoothTransformation);
+    pixllantas = cargarsprite(":/llantas.png").scaledToWidth(74,Qt::SmoothTransformation);
+    pixcongelado = cargarsprite(":/congelado_3_iced.png").scaledToWidth(110,Qt::SmoothTransformation);
+    pixvida = cargarsprite(":/lata_hud.png").scaledToWidth(42,Qt::SmoothTransformation);
+    pixzarigueya = cargarsprite(":/zarigueya.png").scaledToWidth(76,Qt::SmoothTransformation);
+    animjefe = animacion("bandolero_correr", 7, 9, true, 1.45);
+    pixjefequieto = cargarsprite(":/bandolero_caminar_06.png").scaledToWidth(172,Qt::SmoothTransformation);
+    pixcongeladojefe = cargarsprite(":/congelado_1_herido.png").scaledToWidth(170,Qt::SmoothTransformation);
 
-
+    pixbala = QPixmap(14,14);
+    pixbala.fill(Qt::transparent);
+    {
+        QPainter p(&pixbala);
+        p.setrenderHint(QPainter::Antialiasing);
+        p.setpen(QPen(QColor("#ffd34d"),2));
+        p.setBrush(QColor("#222222"));
+        p.drawEllipse(1,1,12,12);
 
     }
+    pixbalajefe = QPixmap (26,26);
+    pixbalajefe.fill(Qt::transparent);
+    {
+        QPainter p (&pixbalajefe);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setPen(QPen(QColor("#ffffff"), 2));
+        p.setBrush(QColor("#c1121f"));
+        p.drawEllipse(2,2,22,22);
+
+    }
+    pixrueda = QPixmap(58,58);
+    pixrueda.fill(Qt::transparent);
+    {
+        QPainter p(&pixrueda);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setPen(QPen(QColor("#111111"), 3));
+        p.setBrush(QColor("#2b2b2b"));
+        p.drawEllipse(2,2,54,54);
+        p.setBrush(QColor("#6b6b6b"));
+        p.drawEllipse(24,24,10,10);
+    }
+    QFont fuente("Arial", 20,QFont::Bold);
+    textopuntos = escena->addSimpleText("puntos: 0", fuente);
+    textopuntos->setBrush(Qt::white);
+    textopuntos->setPen()
+
 
 }
+
 
 
 
