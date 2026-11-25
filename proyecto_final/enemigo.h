@@ -1,4 +1,4 @@
-#ifndef ENEMIGO_H
+ "#ifndef ENEMIGO_H
 #define ENEMIGO_H
 #include "entidad.h"
 #include "fisica.h"
@@ -9,7 +9,7 @@ class enemigo: public entidad{
 
 
 protected:
-    Fisica *fisica;
+    fisica *fisica;
     double t;
     bool congelado;
     double tdisparo;
