@@ -1,7 +1,7 @@
 #include "enemigo.h"
 
 
-enemigo::enemigo(Fisica *f, double x, double y)
+enemigo::enemigo(fisica *f, double x, double y)
     :entidad(x, y, 3), fisica(f), t(0), congelado(false), tdisparo(0){}
 
 

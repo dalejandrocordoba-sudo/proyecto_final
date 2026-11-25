@@ -25,7 +25,9 @@ add_executable(proyecto_final main.cpp
     entidad.h
     entidad.cpp
     fisica.h
-    fisica.cpp)
+    fisica.cpp
+    juego.h
+    juego.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final
