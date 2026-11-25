@@ -114,8 +114,8 @@ juego::juego(QWidget *parent) : QGraphicsView(parent) {
     pixbala.fill(Qt::transparent);
     {
         QPainter p(&pixbala);
-        p.setrenderHint(QPainter::Antialiasing);
-        p.setpen(QPen(QColor("#ffd34d"),2));
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setPen(QPen(QColor("#ffd34d"),2));
         p.setBrush(QColor("#222222"));
         p.drawEllipse(1,1,12,12);
 
@@ -144,10 +144,286 @@ juego::juego(QWidget *parent) : QGraphicsView(parent) {
     QFont fuente("Arial", 20,QFont::Bold);
     textopuntos = escena->addSimpleText("puntos: 0", fuente);
     textopuntos->setBrush(Qt::white);
-    textopuntos->setPen()
+    textopuntos->setPen(QPen(Qt::black,1));
+    textopuntos->setPos(24,12);
+    textopuntos->setZValue(100);
 
+    for(int i = 0; i< 8; ++i)
+    { QGraphicsPixmapItem *v = escena->addPixmap(pixvida);
+        v->setPos(24+i*32,58);
+        v->setZValue(100);
+        vidashud.append(v);
+}
+
+    textonivel = escena->addSimpleText("Nivel 1", fuente);
+    textonivel->setBrush(Qt::white);
+    textonivel->setPen(QPen(Qt::black,1));
+    textonivel->setPos(560,12);
+    textonivel->setZValue(100);
+
+    jefebarrafondo =escena->addRect(0,0,120,10,QPen(Qt::white,2),QBrush(QColor(40,40,40,200)));
+    jefebarravida = escena->addRect(0,0,120,10, QPen(Qt::NoPen), QBrush(QColor("#d62828")));
+    jefebarrafondo->setZValue(60);
+    jefebarravida->setZValue(61);
+    jefeaviso = escena->addSimpleText("!",QFont("Arial",40,QFont::Bold));
+    jefeaviso->setBrush(QColor("#ffd34d"));
+    jefeaviso->setPen(QPen(Qt::black,2));
+    jefeaviso->setZValue(62);
+    textoaprendizaje = escena->addSimpleText("El jefe aprende a disparar:",QFont("Arial",11,QFont::Bold));
+    textoaprendizaje->setBrush(Qt::white);
+    textoaprendizaje->setPen(QPen(Qt::black,1));
+    textoaprendizaje->setPos(900,76);
+    textoaprendizaje->setZValue(100);
+    const char *alturas[3] = {"Alto", "Medio","Bajo"};
+    for(int c =0; c < 3; ++c) {
+        QGraphicsSimpleTextItem *et = escena->addSimpleText(alturas[c], QFont("Arial",11,QFont::Bold));
+        et->setBrush(Qt::white);
+        et->setPen(QPen(Qt::black,1));
+        et->setPos(900,98+c*24);
+        et->setZValue(100);
+        etiquetaspeso.append(et);
+        QGraphicsRectItem *b = escena->addRect(965,100 +c * 24,10,14, QPen(Qt::white,1),QBrush(QColor("#d62828")));
+        b->setZValue(100);
+        barraspeso.append(b);
+    }
+    mostrarpaneljefe(false);
+
+    velo = escena->addRect(0,0,ancho,alto,QPen(Qt::NoPen),QBrush(QColor(0,0,0,120)));
+    velo->setZValue(150);
+    velo->setVisible(false);
+    mensaje = escena->addSimpleText("",QFont("Arial",28,QFont::Bold));
+    mensaje->setBrush(Qt::white);
+    mensaje->setPen(151);
+    mensaje->setVisible(false);
+
+    timeravalancha = new QTimer(this);
+    connect(timeravalancha,&QTimer::timeout(),this,&juego::avalancha);
+
+    reloj.start();
+    iratitulo();
+
+    timer= new QTimer(this);
+    connect(timer, &QTimer(this);
+    connect(timer,&QTimer::timeout,this, &juego::tick);
+    timer->start(16);
+
+    }
+
+juego::~juego() {
+    limpiar();
+    delete fondo;
+}
+
+void juego::iratitulo() {
+    cargarnivel(1);
+    estado = estado::titulo;
+    mostrarmensaje(textotitulo());
 
 }
+QString juego::textotitulo() const {
+    const QString nombres[] = { "facil","normal","dificil"};
+    return QString ("PEPSIMAN DA LA VUELTA A COLOMBIA\n\n"
+                    "Dificultad: %1 (teclas 1/ 2/3)\n\n"
+                    "ENTER =jugar\n"
+                    "shift = ir directo al nivel 2 (para pruebas)\n\n"
+                    "↑/ W saltar ESPACIO lanzar lata")
+            .arg(nombres[dificultadelegida-1]);
+}
+
+void juego::cargarnivel(int n) {
+    timeravalancha->stop();
+    limpiar();
+    fondo->limpiar();
+    if (monumento) { escena->removeItem(monumento); delete monumento;monumento = nullptr; }
+
+    nivelactual = n;
+    cfg = confignivel(n);
+    int z = 0;
+    for (const capacfg &c : cfg.capas) fondo->agregarcapa(c.ruta,c.factor,z++);
+
+
+    mundox = 0;
+    siguienteevento = 0;
+    tlanzar = 0;
+    animpedaleo.reiniciar();
+    generarguion();
+
+    if(!cfg.monumento.idEmpty()) {
+        monumento = escena->addPixmap(cargarsprite(cfg.monumento).scaledtoheight(450,Qt::SmoothTransformation));
+        monumento->setZValue(4.5);
+        actualizarmonumento();
+    }
+    pepsiman = new pepsiman(x_pepsi, suelo);
+    itempepsi = crearitem(pepsiman, animpedaleo.actual(), 11);
+
+    textonivel->setText(cfg.nombre);
+    textometa->setText(cfg.meta);
+    velo->setVisible(false);
+    mensaje->setVisible(false);
+}
+
+void juego::terminarnivel(estado nuevo,const QString &texto) {
+    estado = nuevo;
+    timeravalancha->stop();
+    mostrarmensaje(texto);
+}
+
+void juego::limpiar() {
+    while (!enemigos.isEmpty()) quitarenemigo(0);
+    while (!latas.isEmpty()) quitar(latas,0);
+    while (!balas.isEmpty()) quitar(balas,0);
+    while (!objetos.isEmpty()) quitar(objetos,0);
+    while(!balasjefe.isEmpty()) quitar(balasjefe,0);
+    jefe = nullptr;
+    mostrarpaneljefe(false);
+    if (pepsiman) {
+        if (QGraphicsPixmapItem *g = items.take(pepsiman)) { escena->removeItem(g); delete g; }
+        delete pepsiman;
+        pepsiman = nullptr;
+        itempepsi = nullptr;
+    }
+}
+
+void juego::generarguion() {
+    guion.clear();
+    QVector<int> tipos;
+    tipos += QVector<int> (cfg.nlartas, 3);
+    tipos += QVector<int> (cfg.nenemigos, 0);
+    tipos += QVector<int>(cfg.nbaches,1);
+    tipos += QVector<int>(cfg.nllantas,2);
+    tipos += QVector<int>(cfg.nzarigueyas, 4);
+    std::shuffle(tipos.begin(), tipos.end(), *QRandomGenerator::global());
+    if (cfg.jefe) tipos.insert(tipos.begin()+ tipos.zise() * 2 / 3, 5);
+
+    double x = 1500;
+    for (int t : tipos) {
+        evento ev;
+        ev.x = x;
+        ev.tipo = t;
+        ev.alta = (t == 3) && QRandomGenerator::global()->bounded(3) == 0;
+        guion.append(ev);
+        x += cfg.espaciomin + QRandomGenerator::global()->bounded(cfg.espacioExtra);
+        if( == 5) x += 700;
+    }
+    largonivel = x +900;
+}
+
+void juego::generarevento(const evento &ev) {
+    double sx = ev.x - mundox;
+    double v = cfg.velmundo;
+    bool peleando = jefe && jefe->estaanclado() & !jefe->estacongelado();
+    if (peleando && (ev.tipo == 0 || ev.tipo == 4)) return;
+
+    if(ev.tipo == 5) {
+        jefebandolero *j = new jefebandolero(new movrectilineo(sx, 650, -(v + 170), 0), sx, 650, dificultad.tasaaprendizaje);
+        j->getagente()->setruido(dificultad.precision);
+        jefe = j;
+        flashjefe= 0;
+        animenemigos. insert(j, animjefe);
+        enemigos.append(j);
+        crearitem(j, animjefe.actual(), 10);
+        mostrarpaneljefe(true);
+    }else if (ev.tipo == 0) {
+        enemigo *e = new enemigo(new movrectilineo(sx,650, -(v + 90),0), sx,650);
+        animacion a = animenemigo;
+        a.avanzar(QRandomGenerator::global()->bounded(1.0));
+        animenemigos.insert(e,a);
+        enemigos.append(e);
+        crearitem(e, a.actual(),10);
+    }else if (ev.tipo == 1) {
+        objetomundo *o = new objetomundo(tipoobjeto::bache, new movrectilineo(sx,690, -v, 0), sx, 690);
+        objetos.append(o);
+        crearitem(o, pixhueco, 8);
+    }else if (ev.tipo == 2) {
+        objetomundo *o = new objetomundo(tipoobjeto::llantas,new movrectilineo(sx,662, -v , 0),sx,662);
+        objetos.append(o);
+        crearitem(o,pixllantas, 9);
+    }else if (ev.tipo == 3) {
+        double y = 630 - (ev.alta ? 130 : 0);
+        objeromundo *o = new objeromundo(tipoobjeto::lata,new movrectilineo(sx, y, -v, 0),sx, y );
+        objetos.append(o);
+        crearitem(o, pixlata, 9);
+    } else {
+        double fase = QRandomGenerator::global()->bounded(6.28);
+        double y0 = suelo - 30;
+        objetomundo *o new objetomundo(tipoobjeto::zarigueya,
+                                       new movoscilatoriovertical(sx, y0, -(v + 70), 30, 7.0, fase), sx, y0);
+        objetos.append(0);
+        crearitem(o, pixzarigueya, 10);
+    }
+}
+
+
+void juego::avalancha() {
+    if (estado != estado::jugando) return;
+    for (int i = 0;i < 1; ++i) {
+        double sx = ancho + 60 + i * 150;
+        double y0 = -80 - i * 40;
+        objetomundo *o = new objetomundo(tipoobjeto::llantarebote,
+                                         new movcaidarebote(sx, y0, -(cfg.velmundo + 80), 662, 1400,0.6), sx, y0);
+        objetos.append(o);
+        crearitem(o, pixrueda, 9);
+    }
+}
+
+void juego::tick() {
+    double dt = reloj.restart() / 1000.0;
+    if (dt > 0.05) dt = 0.05;
+
+    if (estado == estado::jugando) actualizarjuego(dt);
+    actualizarhud();
+}
+
+void juego::actualizarjuego(double dt) {
+    mundox += cfg.velmundo * dt;
+    fondo->avanzar( cfg.velmundo * dt);
+    actualizarmonumento();
+
+    while (siguienteevento < guion.size() && guion[siguienteevento].x - mundox < ancho + 80) {
+        generarevento(guion[siguienteevento]);
+        ++siguienteevento;
+    }
+
+    pepsiman->actualizar(dt);
+    animpedaleo.avanzar(dt);
+    if (tlanzar > 0 ) { tlanzar -= dt; animlanzar.avanzar(dt); }
+    if (tlanzar > 0) itempepsi->setPixmap(animlanzar.actual());
+    else if (pepsiman->enaire()) itempepsi->setPixmap(pixsalto);
+    else itempepsi->setPixmap(animpedaleo.actual());
+    bool parpadeo = pepsiman->esinculnerable() && (int(pepsiman->tiempoinvulnerable() * 12) % 2 == 0 );
+    itempepsi-setOpacity(parpadeo ? 0.35 : 1.0);
+
+    double cadencia = dificultad.cadenciadisparo * cfg.factorcadencia;
+    for(int i = enemigo.size() - 1; i>= 0 ; --i) {
+        enemigo *e = enemigos[i];
+        e->actualizarjefe(dt);
+        if (e == jefe) {
+            actualizarjefe(dt);
+        }else if (!e->estacongelado()) {
+            animenemigos[e].avanzar(dt);
+            items[e]->setpixmap(animenemigos[e].actual());
+            if (e->getx()< 1150 && e->debedisparar(dt, cadencia)) disparar(e);
+        }
+        if (e->getx() < -160) quitarenemigo(i);
+    }
+
+    for(int i = latas.size() - 1; i >= 0; --i) {
+        latas[i]->actualizar(dt);
+        if (latas[i]->getx() > ancho + 60 || latas[i]->gety() > suelo + 10) quitar(latas, i);
+    }
+    for(int i = latas.size() - 1; i >= 0; --i) {
+        latas[i]->actualizar(dt);
+        if()
+    }
+}
+
+
+
+
+
+
+
+
 
 
 
