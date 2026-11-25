@@ -55,7 +55,7 @@ private:
 
     QGraphicsScene *escena = nullptr;
     QTimer *timer = nullptr;
-    QTimer *timeravalcha = nullptr;
+    QTimer *timeravalancha = nullptr;
     QElapsedTimer reloj;
     fondoparallax *fondo = nullptr;
     estado estado = estado::titulo;
@@ -66,7 +66,7 @@ private:
     int puntosinicionivel = 0,vidasinicionivel = 3 ;
 
     animacion animpedaleo, animlanzar, animenemigo;
-    QPixmap pixsalto,pixlata,pixlatavolando,pixhue,pixllanta,pixbala,pixcongelado,pixvida;
+    QPixmap pixsalto,pixlata,pixlatavolando,pixhueco,pixllantas,pixbala,pixcongelado,pixvida;
     QPixmap pixzarigueya, pixrueda;
     QPixmap pixjefequieto,pixcongeladojefe,pixbalajefe;
     animacion animjefe;
@@ -86,7 +86,7 @@ private:
 
     QVector<evento> guion;
     int siguienteevento= 0;
-    double mondox = 0;
+    double mundox = 0;
     double largonivel = 1;
     double tlanzar = 0;
 
