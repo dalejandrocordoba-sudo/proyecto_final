@@ -24,11 +24,10 @@ add_executable(proyecto_final main.cpp
     proyectil.cpp
     entidad.h
     entidad.cpp
+    fisica.h
+    fisica.cpp
     juego.h
-    juego.cpp
-)
-
-target_link_libraries(proyecto_final PRIVATE Qt6::Widgets)
+    juego.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final
