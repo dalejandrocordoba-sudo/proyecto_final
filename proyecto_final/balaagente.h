@@ -7,7 +7,7 @@ class balaagente : public proyectil{
     int carril;
 
 public:
-    balaagente(fisica *f, double x, double y, int carril);
+    balaagente(class fisica *f, double x, double y, int carril);
     int getcarril()const;
 
 };
