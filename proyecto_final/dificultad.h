@@ -4,7 +4,7 @@
 
 struct dificultad
 {
-    double tasaaprendisaje;
+    double tasaaprendizaje;
     double precision;
     double cadenciadisparo;
     double aviso;

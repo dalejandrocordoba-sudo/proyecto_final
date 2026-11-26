@@ -1,4 +1,4 @@
-#include <iostream>
+#include <QApplication>
 #include <QMessageBox>
 #include <stdexcept>
 #include "juego.h"
@@ -10,16 +10,14 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     try{
-        Juego juego;
+        juego juego;
         juego.show();
-        return a.exc();
+        return a.exec();
     }
 
     catch (const std::exception &e){
 
-        QMessangeBox::critical(nullptr, "no se puede iniciar el juego", e.what());
+        QMessageBox::critical(nullptr, "no se puede iniciar el juego", e.what());
         return 1;
     }
-    cout << "Hello World!" << endl;
-    return 0;
 }

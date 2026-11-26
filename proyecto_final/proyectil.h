@@ -5,11 +5,11 @@
 
 class proyectil : public entidad{
 
-    fisica *fisica;
+    fisica *Fisica;
     double t;
 
 public:
-    proyectil(class fisica *f, double x, double y);
+    proyectil(fisica *f, double x, double y);
     ~proyectil() override;
     void actualizar(double dt) override;
 

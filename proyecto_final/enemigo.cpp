@@ -2,15 +2,15 @@
 
 
 enemigo::enemigo(fisica *f, double x, double y)
-    :entidad(x, y, 3), fisica(f), t(0), congelado(false), tdisparo(0){}
+    :entidad(x, y, 3), Fisica(f), t(0), congelado(false), tdisparo(0){}
 
 
-enemigo::~enemigo() {delete fisica; }
+enemigo::~enemigo() {delete Fisica; }
 
 void enemigo::actualizar(double dt){
 
     t += dt;
-    QPointF p = fisica ->posicion(t);
+    QPointF p = Fisica ->posicion(t);
 
     x= p.x();
     y= p.y();
@@ -23,11 +23,11 @@ bool enemigo::recibirimpacto(double vmundo){
     return true;
 }
 
-void enemigo::congelar(doble vmundo){
+void enemigo::congelar(double vmundo){
 
-    delete fisica;
+    delete Fisica;
 
-    fisica 0 new movrectilineo(x, y, -vmundo, 0);
+    Fisica = new movrectilineo(x, y, -vmundo, 0);
     t=0;
 
     congelado= true;

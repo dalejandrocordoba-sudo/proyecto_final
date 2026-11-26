@@ -1,4 +1,4 @@
-#include "Agente.h"
+#include "agente.h"
 #include <QRandomGenerator>  // el funcionamiento va en el informe
 
 namespace {
@@ -12,17 +12,18 @@ agente::agente(double tasaaprendizaje)
 
 void agente::setruido(double r){ruido = r;}
 
-double agente::getpeso(int carriljugador, doble distancia) const {
+double agente::getpeso(int carril) const { return memoria.getpeso(carril);}
 
-    return{carriljugador, distancia};
-}
+percepcion agente::percibir(int carriljugador, double distancia) const {
+        return { carriljugador,distancia};
+    }
 
 int agente::decidir(const percepcion &p){
 
-    if (QRandomGenerador::global()->generatedouble() < ruido){
+    if (QRandomGenerator::global()->generateDouble() < ruido){
         ultimadecision = QRandomGenerator::global()-> bounded(3);
 
-        return ultimadecision
+        return ultimadecision;
     }
 
     double w[3];
@@ -37,7 +38,7 @@ int agente::decidir(const percepcion &p){
 
     }
 
-    double r = QRandomGenerator::global()->generatedouble() * total;
+    double r = QRandomGenerator::global()->generateDouble() * total;
     double acum = 0;
 
     for (int c= 0; c < 3; ++c){ultimadecision = c; return c;}
@@ -57,7 +58,7 @@ void agente::aprender(bool acerto){
 
 void agente::aprender(int decision, bool acerto){
 
-    memoria.actializar(decision, acerto);
+    memoria.actualizar(decision, acerto);
 
 }
 

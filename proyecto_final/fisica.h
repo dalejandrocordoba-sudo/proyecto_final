@@ -15,7 +15,7 @@ public:
 class movrectilineo: public fisica
 {
 
-    double x0, y0, vx, yv;
+    double x0, y0, vx, vy;
 
 public:
     movrectilineo(double x0, double y0, double vx, double vy);
@@ -37,7 +37,7 @@ public:
 
 class movoscilatorio : public fisica{
 
-    double xc, yc, amplitud, omega, face, vy;
+    double xc, yc, amplitud, omega, fase, vy;
 
 
 //movimiento oscilatorio

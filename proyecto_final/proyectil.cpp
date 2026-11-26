@@ -1,15 +1,15 @@
 #include "proyectil.h"
 
-proyectil::~proyectil(fisica *f, double x, double y)
-    : Entidad(x, y, 1), fisica(f), t(0){}
+proyectil::proyectil(class fisica *f, double x, double y)
+    : entidad(x, y, 1), Fisica(f), t(0){}
 
-proyectil::~proyectil(){delete fisica;}
+proyectil::~proyectil(){delete Fisica;}
 
 void proyectil::actualizar(double dt){
 
 
     t += dt;
-    QPointF p = fisica->posicion(t);
+    QPointF p = Fisica->posicion(t);
 
     x= p.x();
     y= p.y();

@@ -34,6 +34,7 @@ public:
     bool recibirgolpe();
     void restaurarestado(int puntos, int vidas);
     bool esinvulnerable() const;
+    double tiempoinvulnerable() const;
     int getvidas() const;
     int getpuntos() const;
     int getlatasrecogidas() const;

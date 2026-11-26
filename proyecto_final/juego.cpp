@@ -31,8 +31,8 @@ void juego::quitar(QVector<t*> &v, int i) {
     v.removeAt(i);
 }
 
-juego::confignivel juego::confignivel(int n) {
-    confignivel c;
+struct juego::confignivel juego::confignivel(int n) {
+    struct confignivel c;
     auto capa = [&c](const char *ruta, double factor) {
         capacfg k; k.ruta = ruta; k.factor = factor; c.capas.append (k);
 
@@ -88,7 +88,7 @@ juego::juego(QWidget *parent) : QGraphicsView(parent) {
     setWindowTitle("pepsiman da la vuelta a colombia");
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setFrameShape(QFrame::NoFrame)
+    setFrameShape(QFrame::NoFrame);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     setFocusPolicy(Qt::StrongFocus);
 
@@ -154,12 +154,25 @@ juego::juego(QWidget *parent) : QGraphicsView(parent) {
         v->setZValue(100);
         vidashud.append(v);
 }
-
+    /*textos posiciones y colores */
     textonivel = escena->addSimpleText("Nivel 1", fuente);
     textonivel->setBrush(Qt::white);
     textonivel->setPen(QPen(Qt::black,1));
     textonivel->setPos(560,12);
     textonivel->setZValue(100);
+
+    barrafondo = escena->addRect(900,26,340,16,QPen(Qt::white,2), QBrush(QColor(40,40,40,190)));
+    barrarelleno = escena->addRect(900,26,0,16,QPen(Qt::NoPen),QBrush(QColor("#f4c20d")));
+    barrafondo->setZValue(100);
+    barrarelleno->setZValue(101);
+    textometa = escena->addSimpleText("", QFont("Arial",12,QFont::Bold));
+    textometa->setBrush(Qt::white);
+    textometa->setPen(QPen(Qt::black,1));
+    textometa->setPos(900,46);
+    textometa->setZValue(100);
+
+
+
 
     jefebarrafondo =escena->addRect(0,0,120,10,QPen(Qt::white,2),QBrush(QColor(40,40,40,200)));
     jefebarravida = escena->addRect(0,0,120,10, QPen(Qt::NoPen), QBrush(QColor("#d62828")));
@@ -193,17 +206,17 @@ juego::juego(QWidget *parent) : QGraphicsView(parent) {
     velo->setVisible(false);
     mensaje = escena->addSimpleText("",QFont("Arial",28,QFont::Bold));
     mensaje->setBrush(Qt::white);
-    mensaje->setPen(151);
+    mensaje->setPen(QPen(Qt::black, 2));
+    mensaje->setZValue(151);
     mensaje->setVisible(false);
 
     timeravalancha = new QTimer(this);
-    connect(timeravalancha,&QTimer::timeout(),this,&juego::avalancha);
+    connect(timeravalancha, &QTimer::timeout,this,&juego::avalancha);
 
     reloj.start();
     iratitulo();
 
     timer= new QTimer(this);
-    connect(timer, &QTimer(this);
     connect(timer,&QTimer::timeout,this, &juego::tick);
     timer->start(16);
 
@@ -216,7 +229,7 @@ juego::~juego() {
 
 void juego::iratitulo() {
     cargarnivel(1);
-    estado = estado::titulo;
+    Estado = estado::titulo;
     mostrarmensaje(textotitulo());
 
 }
@@ -248,12 +261,12 @@ void juego::cargarnivel(int n) {
     animpedaleo.reiniciar();
     generarguion();
 
-    if(!cfg.monumento.idEmpty()) {
-        monumento = escena->addPixmap(cargarsprite(cfg.monumento).scaledtoheight(450,Qt::SmoothTransformation));
+    if(!cfg.monumento.isEmpty()) {
+        monumento = escena->addPixmap(cargarsprite(cfg.monumento).scaledToHeight(450,Qt::SmoothTransformation));
         monumento->setZValue(4.5);
         actualizarmonumento();
     }
-    pepsiman = new pepsiman(x_pepsi, suelo);
+    pepsiman = new class pepsiman(x_pepsi, suelo);
     itempepsi = crearitem(pepsiman, animpedaleo.actual(), 11);
 
     textonivel->setText(cfg.nombre);
@@ -262,8 +275,18 @@ void juego::cargarnivel(int n) {
     mensaje->setVisible(false);
 }
 
+void juego::iniciarnivel(int n, int puntos, int vidas) {
+    cargarnivel(n);
+    pepsiman->restaurarestado(puntos,vidas);
+    puntosinicionivel = puntos;
+    vidasinicionivel = std::max(3, vidas);
+    Estado = estado::jugando;
+    reloj.start();
+    if(cfg.avalancha) timeravalancha->start(9000);
+}
+
 void juego::terminarnivel(estado nuevo,const QString &texto) {
-    estado = nuevo;
+    Estado = nuevo;
     timeravalancha->stop();
     mostrarmensaje(texto);
 }
@@ -287,13 +310,13 @@ void juego::limpiar() {
 void juego::generarguion() {
     guion.clear();
     QVector<int> tipos;
-    tipos += QVector<int> (cfg.nlartas, 3);
+    tipos += QVector<int> (cfg.nlatas, 3);
     tipos += QVector<int> (cfg.nenemigos, 0);
     tipos += QVector<int>(cfg.nbaches,1);
     tipos += QVector<int>(cfg.nllantas,2);
     tipos += QVector<int>(cfg.nzarigueyas, 4);
     std::shuffle(tipos.begin(), tipos.end(), *QRandomGenerator::global());
-    if (cfg.jefe) tipos.insert(tipos.begin()+ tipos.zise() * 2 / 3, 5);
+    if (cfg.jefe) tipos.insert(tipos.begin()+ tipos.size() * 2 / 3, 5);
 
     double x = 1500;
     for (int t : tipos) {
@@ -302,8 +325,8 @@ void juego::generarguion() {
         ev.tipo = t;
         ev.alta = (t == 3) && QRandomGenerator::global()->bounded(3) == 0;
         guion.append(ev);
-        x += cfg.espaciomin + QRandomGenerator::global()->bounded(cfg.espacioExtra);
-        if( == 5) x += 700;
+        x += cfg.espaciomin + QRandomGenerator::global()->bounded(cfg.espacioextra);
+        if(t == 5) x += 700;
     }
     largonivel = x +900;
 }
@@ -340,22 +363,22 @@ void juego::generarevento(const evento &ev) {
         crearitem(o,pixllantas, 9);
     }else if (ev.tipo == 3) {
         double y = 630 - (ev.alta ? 130 : 0);
-        objeromundo *o = new objeromundo(tipoobjeto::lata,new movrectilineo(sx, y, -v, 0),sx, y );
+        objetomundo *o = new objetomundo(tipoobjeto::lata,new movrectilineo(sx, y, -v, 0),sx, y );
         objetos.append(o);
         crearitem(o, pixlata, 9);
     } else {
         double fase = QRandomGenerator::global()->bounded(6.28);
         double y0 = suelo - 30;
-        objetomundo *o new objetomundo(tipoobjeto::zarigueya,
+        objetomundo *o = new objetomundo(tipoobjeto::zarigueya,
                                        new movoscilatoriovertical(sx, y0, -(v + 70), 30, 7.0, fase), sx, y0);
-        objetos.append(0);
+        objetos.append(o);
         crearitem(o, pixzarigueya, 10);
     }
 }
 
 
 void juego::avalancha() {
-    if (estado != estado::jugando) return;
+    if (Estado != estado::jugando) return;
     for (int i = 0;i < 1; ++i) {
         double sx = ancho + 60 + i * 150;
         double y0 = -80 - i * 40;
@@ -370,7 +393,7 @@ void juego::tick() {
     double dt = reloj.restart() / 1000.0;
     if (dt > 0.05) dt = 0.05;
 
-    if (estado == estado::jugando) actualizarjuego(dt);
+    if (Estado == estado::jugando) actualizarjuego(dt);
     actualizarhud();
 }
 
@@ -390,18 +413,18 @@ void juego::actualizarjuego(double dt) {
     if (tlanzar > 0) itempepsi->setPixmap(animlanzar.actual());
     else if (pepsiman->enaire()) itempepsi->setPixmap(pixsalto);
     else itempepsi->setPixmap(animpedaleo.actual());
-    bool parpadeo = pepsiman->esinculnerable() && (int(pepsiman->tiempoinvulnerable() * 12) % 2 == 0 );
-    itempepsi-setOpacity(parpadeo ? 0.35 : 1.0);
+    bool parpadeo = pepsiman->esinvulnerable() && (int(pepsiman->tiempoinvulnerable() * 12) % 2 == 0 );
+    itempepsi->setOpacity(parpadeo ? 0.35 : 1.0);
 
     double cadencia = dificultad.cadenciadisparo * cfg.factorcadencia;
-    for(int i = enemigo.size() - 1; i>= 0 ; --i) {
+    for(int i = enemigos.size() - 1; i>= 0 ; --i) {
         enemigo *e = enemigos[i];
-        e->actualizarjefe(dt);
+        e->actualizar(dt);
         if (e == jefe) {
             actualizarjefe(dt);
         }else if (!e->estacongelado()) {
             animenemigos[e].avanzar(dt);
-            items[e]->setpixmap(animenemigos[e].actual());
+            items[e]->setPixmap(animenemigos[e].actual());
             if (e->getx()< 1150 && e->debedisparar(dt, cadencia)) disparar(e);
         }
         if (e->getx() < -160) quitarenemigo(i);
@@ -411,9 +434,9 @@ void juego::actualizarjuego(double dt) {
         latas[i]->actualizar(dt);
         if (latas[i]->getx() > ancho + 60 || latas[i]->gety() > suelo + 10) quitar(latas, i);
     }
-    for(int i = latas.size() - 1; i >= 0; --i) {
-        latas[i]->actualizar(dt);
-        if(balasjefe[i]->getx() < -40) quitar(balas, i);
+    for(int i = balas.size() - 1; i >= 0; --i) {
+        balas[i]->actualizar(dt);
+        if(balas[i]->getx() < -40) quitar(balas, i);
 
     }
     for (int i = balasjefe.size() - 1; i >= 0; --i) {
@@ -431,11 +454,16 @@ void juego::actualizarjuego(double dt) {
     sincronizar();
     colisiones();
 
-    if (estado == estado::jugando && mundox >= largonivel) {
+    if (Estado == estado::jugando && mundox >= largonivel) {
         if (nivelactual < total_niveles) {
             terminarnivel(estado::nivelcompletado,
                           QString(" llegaste a rionegro ¡¡¡¡ \n puntos : %1  vidas: %2\n\n"
                                   "enter = nivel 2\n(rionegro -> marinilla -> el peñol)")
+                              .arg(pepsiman->getpuntos()).arg(pepsiman->getvidas()));
+        } else {
+            terminarnivel(estado::ganado,
+                          QString("llegaste a la piedra de el peñol \n completaste la vuelta a colombia\n\n"
+                                    "puntos: %1\n\n R = volver al inicio")
                               .arg(pepsiman->getpuntos()));
         }
     }
@@ -449,15 +477,15 @@ void juego::actualizarmonumento() {
 }
 
 void juego::sincronizar() {
-    for (auto it = items.begin(); it != item.end(); ++it) {
+    for (auto it = items.begin(); it != items.end(); ++it) {
         const QPixmap &p = it.value()->pixmap();
-        it.value()->setPos(it.key()->getX()-p.width() / 2.0, it.key()->gety() - p.height());
+        it.value()->setPos(it.key()->getx()-p.width() / 2.0, it.key()->gety() - p.height());
 
     }
 }
 
 void juego::colisiones() {
-    QRectF rf = cajade(pepsiman,30,14);
+    QRectF rp = cajade(pepsiman,30,14);
     QRectF pies(pepsiman->getx() - 30, pepsiman->gety() -6,60, 6);
 
 
@@ -468,7 +496,7 @@ void juego::colisiones() {
             if(e->estacongelado()) continue;
             if(rl.intersects(cajade(e, 20, 8))) {
                 if(e->recibirimpacto(cfg.velmundo)) {
-                    items[e]->setpixmap(e == jefe ? pixcongeladojefe : pixcongelado);
+                    items[e]->setPixmap(e == jefe ? pixcongeladojefe : pixcongelado);
                     if(e == jefe) {
                         pepsiman->sumarpuntos(500);
                         mostrarpaneljefe(false);
@@ -483,7 +511,7 @@ void juego::colisiones() {
             if (!usada) {
                 for (int j = objetos.size() - 1 ; j >= 0; --j) {
                     if(objetos[j]->gettipo() != tipoobjeto::zarigueya) continue;
-                    if (rl.intersects(cajade(objeros[j],8,8))) { quitar(objetos, j); usada= true; break; }
+                    if (rl.intersects(cajade(objetos[j],8,8))) { quitar(objetos, j); usada= true; break; }
                 }
 
             }
@@ -495,15 +523,15 @@ void juego::colisiones() {
             if (!e->estacongelado() && rp.intersects(cajade(e, 22, 10))) golpe();
         /*balas de los enemigos*/
         for (int i = balas.size() - 1; i >= 0; --i) {
-            if (estado != estado::jugando) break;
+            if (Estado != estado::jugando) break;
             if (rp.intersects(cajade(balas[i],0,0))) {golpe(); quitar(balas, i);}
 
         }
         /*balas del jefe el jefe verifica a que altura le pega y aprende  */
         for (int i = balasjefe.size() - 1; i >= 0; --i) {
-            if (estado != estado::jugando) break;
+            if (Estado != estado::jugando) break;
             if (rp.intersects(cajade(balasjefe[i],0,0))) {
-                if (jefe) jefe->getagente()-aprender(balasjefe[i]->getcarril(),true);
+                if (jefe) jefe->getagente()->aprender(balasjefe[i]->getcarril(),true);
                 golpe();
                 quitar(balasjefe, i);
             }
@@ -511,9 +539,9 @@ void juego::colisiones() {
         }
 
         for (int i = objetos.size() -1; i >= 0; --i) {
-            if(estado != estado::jugando) break;
+            if(Estado != estado::jugando) break;
             objetomundo *o = objetos[i];
-            switch (o->getTipo()) {
+            switch (o->gettipo()) {
             case tipoobjeto::lata:
                 if(rp.intersects(cajade(o, 4, 4))) {pepsiman->recogerlata();quitar(objetos, i); }
                 break;
@@ -541,6 +569,15 @@ void juego::golpe() {
     if (!pepsiman->estaviva())
         terminarnivel(estado::perdido, "pepsiman se quedo sin vidas\n\nR = reintentar el nivel");
 }
+void juego::lanzarlata() {
+    proyectil *p = pepsiman->lanzarlata();
+    if(!p) return;
+    latas.append(p);
+    crearitem(p, pixlatavolando,12);
+    animlanzar.reiniciar();
+    tlanzar = 0.28;
+
+}
 
 void juego::disparar(enemigo *e) {
     double bx = e->getx() -40, by = e->gety() - 62;
@@ -554,10 +591,10 @@ void juego::actualizarjefe(double dt) {
     if(!jefe->estacongelado()) {
         if(!jefe->estaanclado()) {
             animenemigos[jefe].avanzar(dt);
-            items[jefe]->setpixmap(animenemigos[jefe].actual());
+            items[jefe]->setPixmap(animenemigos[jefe].actual());
             if (jefe->getx() <= x_jefe) jefe->anclar(x_jefe);
         } else {
-            items[jefe]->setpixmap(pixjefequieto);
+            items[jefe]->setPixmap(pixjefequieto);
             double cadencia = dificultad.cadenciadisparo * 1.2;
             if (jefe->actualizarataque(dt, cadencia,dificultad.aviso)) dispararjefe();
 
@@ -588,19 +625,19 @@ void juego::dispararjefe() {
 void juego::mostrarpaneljefe(bool visible) {
     if (!textoaprendizaje) return;
     textoaprendizaje->setVisible(visible);
-    for(QGraphicsSimpleTextItem *e :etiquetaspeso) e->setvisible(visible);
-    for(QGraphicsRectItem *b : barraspeso) b->setvisible(visible);
-    jefebarrafondo->setvisible(visible);
-    jefebarravida->setvisible(visible);
-    if (!visible) jefeaviso->setvisible(false);
+    for(QGraphicsSimpleTextItem *e :etiquetaspeso) e->setVisible(visible);
+    for(QGraphicsRectItem *b : barraspeso) b->setVisible(visible);
+    jefebarrafondo->setVisible(visible);
+    jefebarravida->setVisible(visible);
+    if (!visible) jefeaviso->setVisible(false);
 }
 
 void juego::actualizarhud() {
     if(!pepsiman) return;
     textopuntos->setText(QString("puntos: %1").arg(pepsiman->getpuntos()));
-    for(int i = 0; i < vidashud.size(); ++i) vidashud[i]->setvisible(i<pepsiman->getvidas());
+    for(int i = 0; i < vidashud.size(); ++i) vidashud[i]->setVisible(i<pepsiman->getvidas());
     double avance = std::min(1.0,mundox/largonivel);
-    barrarelleno-setRect(900,26,340 * avance,16);
+    barrarelleno->setRect(900,26,340 * avance,16);
 
     if(jefe && !jefe->estacongelado()) {
         agente *ag = jefe->getagente();
@@ -609,16 +646,16 @@ void juego::actualizarhud() {
             barraspeso[c]->setRect(965,100 + c *24,220* ag->getpeso(c) /total,14);
         double fr = double(jefe->getvida()) / jefe->getvidamaxima();
         jefebarrafondo->setRect(jefe->getx() -60, jefe->gety() - 255,120,10);
-        jefebarravia->setRect(jefe->getx() - 60, jefe->gety() - 255,120 *fr,10);
-        jefeaviso->setvisible(jefe->estapreparando());
+        jefebarravida->setRect(jefe->getx() - 60, jefe->gety() - 255,120 *fr,10);
+        jefeaviso->setVisible(jefe->estapreparado());
         jefeaviso->setPos(jefe->getx() - 10, jefe->gety() - 285);
     }
 }
 
 void juego::mostrarmensaje(const QString &texto) {
     mensaje->setText(texto);
-    QRectF r = mensjae->boundingRect();
-    mensjae->setPos((ancho - r.width()) /2, (alto - r.height()) / 2 - 40);
+    QRectF r = mensaje->boundingRect();
+    mensaje->setPos((ancho - r.width()) /2, (alto - r.height()) / 2 - 40);
     velo->setVisible(true);
     mensaje->setVisible(true);
 }
@@ -635,7 +672,7 @@ QGraphicsPixmapItem* juego::crearitem(entidad *e, const QPixmap &pix, int z) {
 QRectF juego::cajade(entidad *e, qreal ix, qreal iy) const {
     QGraphicsPixmapItem *g = items.value(e, nullptr);
     if (!g) return QRectF();
-    return g->sceneboundingrect().adjusted(ix, iy, -ix, -iy);
+    return g->sceneBoundingRect().adjusted(ix, iy, -ix, -iy);
 }
 
 void juego::quitarenemigo(int i) {
@@ -645,15 +682,15 @@ void juego::quitarenemigo(int i) {
 
 }
 
-void juego::keypressevent(QKeyEvent *e) {
+void juego::keyPressEvent(QKeyEvent *e) {
     int k = e->key();
     if (k == Qt::Key_Escape) { close(); return; }
 
-    switch (estado) {
+    switch (Estado) {
     case estado::titulo:
 
-    if(k == Qt::key_1 || k == Qt::Key_2 || k == Qt::Key_3) {
-        dificultadelegida = k -Qt::key_0;
+    if(k == Qt::Key_1 || k == Qt::Key_2 || k == Qt::Key_3) {
+        dificultadelegida = k -Qt::Key_0;
         dificultad = creardificultad(dificultadelegida);
         mostrarmensaje(textotitulo());
     }else if (k ==Qt::Key_Return || k == Qt::Key_Enter) {
@@ -663,7 +700,7 @@ void juego::keypressevent(QKeyEvent *e) {
     }
     return;
 case estado::jugando:
-    if ((k == Qt::key_up || k == Qt::key_w) && !e->isautorepeat()) pepsiman-> saltar();
+    if ((k == Qt::Key_Up || k == Qt::Key_W) && !e->isAutoRepeat()) pepsiman-> saltar();
     else if (k == Qt::Key_Space) lanzarlata();
     return;
 case estado::nivelcompletado:
@@ -672,15 +709,15 @@ if(k == Qt::Key_Return ||k == Qt::Key_Enter)
 return;
 case estado::perdido:
     if(k == Qt::Key_R) iniciarnivel(nivelactual,puntosinicionivel,vidasinicionivel);
-    return:
-         case estado::ganaso:
-    if ( k == Qt::key_R) iratitulo();
+    return;
+         case estado::ganado:
+    if ( k == Qt::Key_R) iratitulo();
     return;
 }
     QGraphicsView::keyPressEvent (e);
 
 }
-void juego::resizeevent(QResizeEvent *e) {
-    QGraphicsView::resizeevent(e);
+void juego::resizeEvent(QResizeEvent *e) {
+    QGraphicsView::resizeEvent(e);
     fitInView(sceneRect(), Qt::KeepAspectRatio);
 }

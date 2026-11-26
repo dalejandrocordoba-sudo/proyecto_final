@@ -24,7 +24,7 @@ public:
     int getvida() const;
     bool estaviva () const;
 
-    void resibirdano(int d);
+    void recibirdano(int d);
     void setvelocidad(double vx, double vy);
 
 };

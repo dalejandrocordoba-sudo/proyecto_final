@@ -17,7 +17,7 @@ struct percepcion
 
 class agente {
 
-    memoria memoria;
+    class memoria memoria;
     int ultimadecision;
     double ruido;
 

@@ -2,7 +2,7 @@
 
 namespace {
 const double V_SALTO = 700.0;
-const double G_SALTO = 1800.0;
+const double G_SALTO = 1500.0;
 const double ANGULO_VERTICAL = 1.5707963267948966;
 const double V_LATA = 640.0;
 const double ANGULO_LATA = 0.5236;
@@ -16,10 +16,10 @@ const double TIEMPO_INVULNERABLE = 1.6;
 
 
 pepsiman::pepsiman(double x, double ysuelo)
-    : entidad(x, ySuelo, 3), ysuelo(ysuelo), salto(nullptr), tsalto(0),
+    : entidad(x, ysuelo, 3), ysuelo(ysuelo), salto(nullptr), tsalto(0),
     enfriamiento(0), invulnerable(0), puntos(0), latasrecogidas(0), bonosvida(0) {}
 
-pepsiman::~Pepsiman() { delete salto; }
+pepsiman::~pepsiman() { delete salto; }
 
 void pepsiman::actualizar(double dt){
 
@@ -35,6 +35,8 @@ void pepsiman::actualizar(double dt){
             y = ysuelo;
             delete salto;
             salto = nullptr;
+        } else {
+            y = ysuelo + p.y();
         }
 
     }
@@ -53,12 +55,12 @@ proyectil* pepsiman::lanzarlata(){
     if (enfriamiento > 0) return nullptr;
     enfriamiento = ENFRIAMIENTO;
     double x0 = x + 50, y0 = y -55;
-
+    return new proyectil(new movparabolico(x0, y0, V_LATA, ANGULO_LATA, G_LATA), x0, y0);
 
 }
 
 
-void pepsiman::sumapuntos(int p){
+void pepsiman::sumarpuntos(int p){
 
     puntos += p;
     while (puntos / 1000 >bonosvida){

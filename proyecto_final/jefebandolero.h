@@ -6,10 +6,10 @@
 
 class jefebandolero : public enemigo{
 
-    agente *agente;
+   class agente *agente;
     int vidamaxima;
     bool anclado;
-    bool preparado;
+    bool preparando;
 
 public:
 

@@ -1,11 +1,11 @@
 #include "recursos.h"
 #include <stdexcept>
 
-Qpixmap cargarstrite(const QString &ruta) {
+QPixmap cargarsprite(const QString &ruta) {
 
-    Qpixmap img(ruta);
+    QPixmap img(ruta);
     if (img.isNull())
-        throw std::runtime_error("No se pudo cargar: " + ruta.tostdstring());
+        throw std::runtime_error("No se pudo cargar: " + ruta.toStdString());
     return img;
 
 }

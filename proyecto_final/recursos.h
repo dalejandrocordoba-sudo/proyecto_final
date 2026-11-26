@@ -5,7 +5,7 @@
 #include <QString>
 
 
-QPixmap cargarstrite(const QString &ruta);
+QPixmap cargarsprite(const QString &ruta);
 
 
 #endif // RECURSOS_H

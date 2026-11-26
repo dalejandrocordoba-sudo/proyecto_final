@@ -1,23 +1,23 @@
 #include "jefebandolero.h"
 
 jefebandolero::jefebandolero(fisica *f, double x, double y, double tasaaprendizaje)
-    :enemigo(f, x, y), agente(new agente(tasaaprendizaje)),
-    vidamaxima(10), anclado(false), preparado(false){
+    :enemigo(f, x, y), agente(new class agente(tasaaprendizaje)),
+    vidamaxima(10), anclado(false), preparando(false){
 
     vida=vidamaxima;
 }
 
 
-jefebandolero::jefebandolero(){delete agente; }
+jefebandolero::~jefebandolero(){delete agente; }
 
 agente* jefebandolero::getagente(){return agente; }
 int jefebandolero::getvidamaxima() const{return vidamaxima; }
 bool jefebandolero::estaanclado() const{return anclado; }
-bool jefebandolero::estapreparado() const {return preparado;}
+bool jefebandolero::estapreparado() const {return preparando;}
 
 void jefebandolero::anclar(double xpantalla){
-    delete fisica;
-    fisica = new movrectilineo(xpantalla, y, 0, 0);
+    delete Fisica;
+    Fisica = new movrectilineo(xpantalla, y, 0, 0);
     t = 0;
     anclado= true;
     tdisparo = 0;

@@ -9,7 +9,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Buscar módulos de Qt necesarios (Core incluye QMap, Widgets incluye QGraphicsView)
+# Módulos de Qt necesarios
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 add_executable(proyecto_final
@@ -17,37 +17,51 @@ add_executable(proyecto_final
 
     # Encabezados (.h)
     agente.h
+    animacion.h
     balaagente.h
     dificultad.h
     enemigo.h
     entidad.h
     fisica.h
+    fondoparallax.h
     jefebandolero.h
     juego.h
     memoria.h
+    objetomundo.h
+    pepsiman.h
     proyectil.h
     recursos.h
 
     # Archivos fuente (.cpp)
     agente.cpp
+    animacion.cpp
     balaagente.cpp
     dificultad.cpp
     enemigo.cpp
     entidad.cpp
     fisica.cpp
+    fondoparallax.cpp
     jefebandolero.cpp
     juego.cpp
     memoria.cpp
+    objetomundo.cpp
+    pepsiman.cpp
     proyectil.cpp
     recursos.cpp
-    objetomundo.h
-    objetomundo.cpp
-    pepsiman.h
-    pepsiman.cpp
-
 )
 
-# Vincular las librerías de Qt al proyecto (esto soluciona el error de QMap)
+# Incrustar imágenes en la raíz "/" (para rutas como ":/pepsiman_pedalear_A_01.png")
+file(GLOB_RECURSE IMAGENES_RECURSOS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "recursos/*")
+qt_add_resources(proyecto_final "recursos_juego"
+    PREFIX "/"
+    BASE "recursos"
+    FILES ${IMAGENES_RECURSOS}
+)
+
+# Copiar la carpeta recursos al directorio build (para rutas relativas como "recursos/...")
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/recursos DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+# Vincular las librerías de Qt al proyecto
 target_link_libraries(proyecto_final PRIVATE
     Qt6::Core
     Qt6::Widgets

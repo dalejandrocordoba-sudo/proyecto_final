@@ -58,8 +58,8 @@ private:
     QTimer *timeravalancha = nullptr;
     QElapsedTimer reloj;
     fondoparallax *fondo = nullptr;
-    estado estado = estado::titulo;
-    dificultad dificultad;
+    estado Estado = estado::titulo;
+    class dificultad dificultad;
     int dificultadelegida = 2;
     int nivelactual = 1;
     struct confignivel cfg;
@@ -71,7 +71,7 @@ private:
     QPixmap pixjefequieto,pixcongeladojefe,pixbalajefe;
     animacion animjefe;
 
-    pepsiman *pepsiman = nullptr;
+   class pepsiman *pepsiman = nullptr;
     QGraphicsPixmapItem *itempepsi = nullptr;
     QGraphicsPixmapItem *monumento = nullptr;
     QVector<enemigo*> enemigos;
@@ -81,7 +81,7 @@ private:
     jefebandolero *jefe = nullptr;
     double flashjefe = 0;
     QVector<objetomundo*> objetos;
-    QHash<entidad*, QGaphicsPixmapItem*> items;
+    QHash<entidad*, QGraphicsPixmapItem*> items;
     QHash<enemigo*,animacion>animenemigos;
 
     QVector<evento> guion;
@@ -121,7 +121,7 @@ private:
     void disparar(enemigo *e);
     void actualizarjefe(double dt);
     void dispararjefe();
-    void mostrarpaneljefe(double dt);
+    void mostrarpaneljefe(bool visible);
     void golpe();
     void mostrarmensaje(const QString &texto);
     QString textotitulo() const;

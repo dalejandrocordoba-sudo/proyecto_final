@@ -1,4 +1,4 @@
-#include "Fisica.h"
+#include "fisica.h"
 #include <cmath>
 #include <algorithm>
 

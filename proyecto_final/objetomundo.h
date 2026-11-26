@@ -13,7 +13,7 @@ enum class tipoobjeto{ bache, llantas, lata, zarigueya, llantarebote
 class objetomundo : public entidad{
 
     tipoobjeto tipo;
-    fisica *fisica;
+    fisica *Fisica;
     double t;
 
 public:
