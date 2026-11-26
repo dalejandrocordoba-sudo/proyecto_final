@@ -42,7 +42,7 @@ class movoscilatorio : public fisica{
 
 //movimiento oscilatorio
 public:
-    movoscilatorio(double xc, double yc, double amplitud, double omega, double fase, doble vy);
+    movoscilatorio(double xc, double yc, double amplitud, double omega, double fase, double vy);
     QPointF posicion(double t) const override;
 
 };
@@ -57,7 +57,7 @@ class movfriccion : public fisica {
 
 public:
 
-    movfriccion(double s0, double v0, double theta, doble mu, double g= 9.8);
+    movfriccion(double s0, double v0, double theta, double mu, double g= 9.8);
     QPointF posicion(double t) const override;
 
 };

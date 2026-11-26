@@ -1,15 +1,15 @@
- "#ifndef ENEMIGO_H
+#ifndef ENEMIGO_H
 #define ENEMIGO_H
 #include "entidad.h"
 #include "fisica.h"
 
 
-class enemigo: public entidad{
+class enemigo: public entidad {
 
 
 
 protected:
-    fisica *fisica;
+    fisica *Fisica;
     double t;
     bool congelado;
     double tdisparo;
@@ -17,14 +17,14 @@ protected:
 public:
 
 
-    enemigo(Fisica *f, double x, double y);
-    ~enemigo() overrride;
+    enemigo(fisica *f, double x, double y);
+    ~enemigo() override;
 
     void actualizar(double dt) override;
 
     virtual bool recibirimpacto(double vmundo);
 
-    void congelar(doble vmundo);
+    void congelar(double vmundo);
     bool estacongelado() const;
     bool debedisparar(double dt, double cadencia);
 
