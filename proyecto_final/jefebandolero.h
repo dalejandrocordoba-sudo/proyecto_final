@@ -18,7 +18,7 @@ public:
     ~jefebandolero() override;
 
 
-    agente* getagente();
+    class agente* getagente();
     int getvidamaxima() const;
     void anclar(double xpantalla);
     bool estaanclado() const;

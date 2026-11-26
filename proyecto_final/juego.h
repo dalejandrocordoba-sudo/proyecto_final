@@ -29,8 +29,8 @@ public:
         ~juego() override;
 
 protected:
-    void keypressevent(QKeyEvent *e) override;
-    void resizeevent(QResizeEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
+    void resizeEvent(QResizeEvent *e) override;
 
 private slots:
     void tick();
@@ -51,7 +51,7 @@ private:
         bool avalancha = false;
         bool jefe = false;
     };
-    static confignivel confignivel ( int n);
+    static struct confignivel confignivel(int n);
 
     QGraphicsScene *escena = nullptr;
     QTimer *timer = nullptr;
@@ -62,7 +62,7 @@ private:
     dificultad dificultad;
     int dificultadelegida = 2;
     int nivelactual = 1;
-    confignivel cfg;
+    struct confignivel cfg;
     int puntosinicionivel = 0,vidasinicionivel = 3 ;
 
     animacion animpedaleo, animlanzar, animenemigo;

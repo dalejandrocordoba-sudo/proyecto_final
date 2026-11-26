@@ -2,7 +2,7 @@
 #define MEMORIA_H
 #include <QMap>
 
-class meroria{
+class memoria{
     QMap <int, double> pesos;
     double tasa;
 

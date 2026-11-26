@@ -9,31 +9,44 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 COMPONENTS Widgets REQUIRED)
+# Buscar módulos de Qt necesarios (Core incluye QMap, Widgets incluye QGraphicsView)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
-add_executable(proyecto_final main.cpp
+add_executable(proyecto_final
+    main.cpp
+
+    # Encabezados (.h)
     agente.h
-    memoria.h
-    memoria.cpp
-    enemigo.h
-    enemigo.cpp
-    agente.cpp
     balaagente.h
-    balaagente.cpp
-    proyectil.h
-    proyectil.cpp
-    entidad.h
-    entidad.cpp
-    fisica.h
-    fisica.cpp
-    juego.h
-    juego.cpp
     dificultad.h
-    dificultad.cpp
-    recursos.h
-    recursos.cpp
+    enemigo.h
+    entidad.h
+    fisica.h
     jefebandolero.h
-    jefebandolero.cpp)
+    juego.h
+    memoria.h
+    proyectil.h
+    recursos.h
+
+    # Archivos fuente (.cpp)
+    agente.cpp
+    balaagente.cpp
+    dificultad.cpp
+    enemigo.cpp
+    entidad.cpp
+    fisica.cpp
+    jefebandolero.cpp
+    juego.cpp
+    memoria.cpp
+    proyectil.cpp
+    recursos.cpp
+)
+
+# Vincular las librerías de Qt al proyecto (esto soluciona el error de QMap)
+target_link_libraries(proyecto_final PRIVATE
+    Qt6::Core
+    Qt6::Widgets
+)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final

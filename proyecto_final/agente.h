@@ -17,7 +17,7 @@ struct percepcion
 
 class agente {
 
-    memoria1 memoria;  //memoria1 ===Memoria  corregir en el archivo de memoria
+    memoria memoria;
     int ultimadecision;
     double ruido;
 
@@ -36,5 +36,3 @@ public:
 
 };
 #endif // AGENTE_H
-
-```[cite: 1]
