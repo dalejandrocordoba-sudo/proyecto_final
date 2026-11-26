@@ -29,7 +29,11 @@ add_executable(proyecto_final main.cpp
     juego.h
     juego.cpp
     dificultad.h
-    dificultad.cpp)
+    dificultad.cpp
+    recursos.h
+    recursos.cpp
+    jefebandolero.h
+    jefebandolero.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS proyecto_final
