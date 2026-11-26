@@ -40,6 +40,9 @@ add_executable(proyecto_final
     memoria.cpp
     proyectil.cpp
     recursos.cpp
+    objetomundo.h
+    objetomundo.cpp
+    pepsiman.h
 )
 
 # Vincular las librerías de Qt al proyecto (esto soluciona el error de QMap)
