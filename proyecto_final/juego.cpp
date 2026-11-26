@@ -525,7 +525,7 @@ void juego::colisiones() {
                 break;
             case tipoobjeto::llantarebote:
                 if(rp.intersects(cajade(o,8,8))) { golpe(); quitar(objetos, i); }
-                break
+                break;
             case tipoobjeto::bache: {
                 QRectF r = cajade(o, 30,0);
                 r.setTop(646);
@@ -534,9 +534,177 @@ void juego::colisiones() {
             }
             }
         }
+}
 
+void juego::golpe() {
+    if (!pepsiman->recibirgolpe()) return;
+    if (!pepsiman->estaviva())
+        terminarnivel(estado::perdido, "pepsiman se quedo sin vidas\n\nR = reintentar el nivel");
+}
+
+void juego::disparar(enemigo *e) {
+    double bx = e->getx() -40, by = e->gety() - 62;
+    proyectil *b = new proyectil(new movrectilineo(bx, by, -620,0), bx, by);
+    balas.append(b);
+    crearitem(b, pixbala, 12);
+}
+
+
+void juego::actualizarjefe(double dt) {
+    if(!jefe->estacongelado()) {
+        if(!jefe->estaanclado()) {
+            animenemigos[jefe].avanzar(dt);
+            items[jefe]->setpixmap(animenemigos[jefe].actual());
+            if (jefe->getx() <= x_jefe) jefe->anclar(x_jefe);
+        } else {
+            items[jefe]->setpixmap(pixjefequieto);
+            double cadencia = dificultad.cadenciadisparo * 1.2;
+            if (jefe->actualizarataque(dt, cadencia,dificultad.aviso)) dispararjefe();
+
+        }
+    }
+    if (flashjefe > 0) {
+        flashjefe -= dt;
+        items[jefe]->setOpacity((int(flashjefe * 20) % 2) ? 0.4 : 1.0);
+    } else {
+        items[jefe]->setOpacity(1.0);
+    }
+}
+/*persepcion rasonamiento del agente aprende cuando le pega a pepsiman y
+  vuleve a lanzar al mismo lugar */
+void juego::dispararjefe() {
+    agente *ag = jefe->getagente();
+    int carriljugador = pepsiman->enaire() ? 0: 2;
+    percepcion p = ag->percibir(carriljugador, jefe->getx() - pepsiman->getx());
+    int carril = ag->actuar (p);
+
+    static const double alturas[3] = { 500,588,646 };
+    double bx = jefe->getx() -55, by = alturas[carril];
+    balaagente *b = new balaagente(new movrectilineo(bx,by,-420,0),bx,by,carril);
+    balasjefe.append(b);
+    crearitem(b,pixbalajefe,12);
+}
+
+void juego::mostrarpaneljefe(bool visible) {
+    if (!textoaprendizaje) return;
+    textoaprendizaje->setVisible(visible);
+    for(QGraphicsSimpleTextItem *e :etiquetaspeso) e->setvisible(visible);
+    for(QGraphicsRectItem *b : barraspeso) b->setvisible(visible);
+    jefebarrafondo->setvisible(visible);
+    jefebarravida->setvisible(visible);
+    if (!visible) jefeaviso->setvisible(false);
+}
+
+void juego::actualizarhud() {
+    if(!pepsiman) return;
+    textopuntos->setText(QString("puntos: %1").arg(pepsiman->getpuntos()));
+    for(int i = 0; i < vidashud.size(); ++i) vidashud[i]->setvisible(i<pepsiman->getvidas());
+    double avance = std::min(1.0,mundox/largonivel);
+    barrarelleno-setRect(900,26,340 * avance,16);
+
+    if(jefe && !jefe->estacongelado()) {
+        agente *ag = jefe->getagente();
+        double total = ag->getpeso(0) + ag->getpeso(1) + ag->getpeso(2);
+        for(int c = 0; c< 3 ; ++c)
+            barraspeso[c]->setRect(965,100 + c *24,220* ag->getpeso(c) /total,14);
+        double fr = double(jefe->getvida()) / jefe->getvidamaxima();
+        jefebarrafondo->setRect(jefe->getx() -60, jefe->gety() - 255,120,10);
+        jefebarravia->setRect(jefe->getx() - 60, jefe->gety() - 255,120 *fr,10);
+        jefeaviso->setvisible(jefe->estapreparando());
+        jefeaviso->setPos(jefe->getx() - 10, jefe->gety() - 285);
+    }
+}
+
+void juego::mostrarmensaje(const QString &texto) {
+    mensaje->setText(texto);
+    QRectF r = mensjae->boundingRect();
+    mensjae->setPos((ancho - r.width()) /2, (alto - r.height()) / 2 - 40);
+    velo->setVisible(true);
+    mensaje->setVisible(true);
+}
+
+QGraphicsPixmapItem* juego::crearitem(entidad *e, const QPixmap &pix, int z) {
+    QGraphicsPixmapItem *g = escena->addPixmap(pix);
+    g->setZValue(z);
+    g->setTransformationMode(Qt::SmoothTransformation);
+    items.insert(e, g);
+    return g;
+}
+
+
+QRectF juego::cajade(entidad *e, qreal ix, qreal iy) const {
+    QGraphicsPixmapItem *g = items.value(e, nullptr);
+    if (!g) return QRectF();
+    return g->sceneboundingrect().adjusted(ix, iy, -ix, -iy);
+}
+
+void juego::quitarenemigo(int i) {
+    if (enemigos[i] == jefe) { jefe = nullptr; mostrarpaneljefe(false); }
+    animenemigos.remove(enemigos[i]);
+    quitar(enemigos,i);
 
 }
+
+void juego::keypressevent(QKeyEvent *e) {
+    int k = e->key();
+    if (k == Qt::Key_Escape) { close(); return; }
+
+    switch (estado) {
+    case estado::titulo:
+
+    if(k == Qt::key_1 || k == Qt::Key_2 || k == Qt::Key_3) {
+        dificultadelegida = k -Qt::key_0;
+        dificultad = creardificultad(dificultadelegida);
+        mostrarmensaje(textotitulo());
+    }else if (k ==Qt::Key_Return || k == Qt::Key_Enter) {
+        iniciarnivel(1,0,3);
+    }else if (k == Qt::Key_Shift) {
+        iniciarnivel(2,0,3);
+    }
+    return;
+case estado::jugando:
+    if ((k == Qt::key_up || k == Qt::key_w) && !e->isautorepeat()) pepsiman-> saltar();
+    else if (k == Qt::Key_Space) lanzarlata();
+    return;
+case estado::nivelcompletado:
+if(k == Qt::Key_Return ||k == Qt::Key_Enter)
+        iniciarnivel(nivelactual + 1, pepsiman->getpuntos(), pepsiman->getvidas());
+return;
+case estado::perdido:
+    if(k == Qt::Key_R) iniciarnivel(nivelactual,puntosinicionivel,vidasinicionivel);
+    return:
+         case estado::ganaso:
+    if ( k == Qt::key_R) iratitulo();
+    return;
+}
+    QGraphicsView::keyPressEvent (e);
+
+}
+void juego::resizeevent(QResizeEvent *e) {
+    QGraphicsView::resizeevent(e);
+    fitInView(sceneRect(), Qt::KeepAspectRatio);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
