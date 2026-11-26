@@ -413,14 +413,130 @@ void juego::actualizarjuego(double dt) {
     }
     for(int i = latas.size() - 1; i >= 0; --i) {
         latas[i]->actualizar(dt);
-        if()
+        if(balasjefe[i]->getx() < -40) quitar(balas, i);
+
+    }
+    for (int i = balasjefe.size() - 1; i >= 0; --i) {
+        balasjefe[i]->actualizar(dt);
+        if(balasjefe[i]->getx() < -40) {
+            if(jefe) jefe->getagente()->aprender(balasjefe[i]->getcarril(), false);
+            quitar(balasjefe, i);
+        }
+    }
+    for (int i = objetos.size() - 1; i >= 0; --i) {
+        objetos[i]->actualizar(dt);
+        if(objetos[i]->getx() < -250) quitar(objetos, i);
+    }
+
+    sincronizar();
+    colisiones();
+
+    if (estado == estado::jugando && mundox >= largonivel) {
+        if (nivelactual < total_niveles) {
+            terminarnivel(estado::nivelcompletado,
+                          QString(" llegaste a rionegro ¡¡¡¡ \n puntos : %1  vidas: %2\n\n"
+                                  "enter = nivel 2\n(rionegro -> marinilla -> el peñol)")
+                              .arg(pepsiman->getpuntos()));
+        }
     }
 }
 
+void juego::actualizarmonumento() {
+    if(!monumento) return;
+    const QPixmap &p = monumento->pixmap();
+    monumento->setPos(largonivel + 260 - mundox -p.width() / 2.0,585 - p.height());
+
+}
+
+void juego::sincronizar() {
+    for (auto it = items.begin(); it != item.end(); ++it) {
+        const QPixmap &p = it.value()->pixmap();
+        it.value()->setPos(it.key()->getX()-p.width() / 2.0, it.key()->gety() - p.height());
+
+    }
+}
+
+void juego::colisiones() {
+    QRectF rf = cajade(pepsiman,30,14);
+    QRectF pies(pepsiman->getx() - 30, pepsiman->gety() -6,60, 6);
 
 
+    for ( int i = latas.size() - 1; i >= 0; --i) {
+        QRectF rl = cajade(latas[i],2,2);
+        bool usada = false;
+        for (enemigo *e : enemigos) {
+            if(e->estacongelado()) continue;
+            if(rl.intersects(cajade(e, 20, 8))) {
+                if(e->recibirimpacto(cfg.velmundo)) {
+                    items[e]->setpixmap(e == jefe ? pixcongeladojefe : pixcongelado);
+                    if(e == jefe) {
+                        pepsiman->sumarpuntos(500);
+                        mostrarpaneljefe(false);
+                    }
+                } else if ( e == jefe) {
+                    flashjefe = 0.25;
+                }
+                usada = true;
+                break;
+            }
+        }
+            if (!usada) {
+                for (int j = objetos.size() - 1 ; j >= 0; --j) {
+                    if(objetos[j]->gettipo() != tipoobjeto::zarigueya) continue;
+                    if (rl.intersects(cajade(objeros[j],8,8))) { quitar(objetos, j); usada= true; break; }
+                }
+
+            }
+            if (usada) quitar(latas, i);
+        }
+
+        /*cuando tocan a pepsiman los enemigos*/
+        for (enemigo *e : enemigos)
+            if (!e->estacongelado() && rp.intersects(cajade(e, 22, 10))) golpe();
+        /*balas de los enemigos*/
+        for (int i = balas.size() - 1; i >= 0; --i) {
+            if (estado != estado::jugando) break;
+            if (rp.intersects(cajade(balas[i],0,0))) {golpe(); quitar(balas, i);}
+
+        }
+        /*balas del jefe el jefe verifica a que altura le pega y aprende  */
+        for (int i = balasjefe.size() - 1; i >= 0; --i) {
+            if (estado != estado::jugando) break;
+            if (rp.intersects(cajade(balasjefe[i],0,0))) {
+                if (jefe) jefe->getagente()-aprender(balasjefe[i]->getcarril(),true);
+                golpe();
+                quitar(balasjefe, i);
+            }
+
+        }
+
+        for (int i = objetos.size() -1; i >= 0; --i) {
+            if(estado != estado::jugando) break;
+            objetomundo *o = objetos[i];
+            switch (o->getTipo()) {
+            case tipoobjeto::lata:
+                if(rp.intersects(cajade(o, 4, 4))) {pepsiman->recogerlata();quitar(objetos, i); }
+                break;
+            case tipoobjeto::llantas:
+                if (rp.intersects(cajade(o, 10, 12))) golpe();
+                break;
+            case tipoobjeto::zarigueya:
+                if(rp.intersects(cajade(o,12,12))) golpe();
+                break;
+            case tipoobjeto::llantarebote:
+                if(rp.intersects(cajade(o,8,8))) { golpe(); quitar(objetos, i); }
+                break
+            case tipoobjeto::bache: {
+                QRectF r = cajade(o, 30,0);
+                r.setTop(646);
+                if (pies.intersects(r)) golpe();
+                break;
+            }
+            }
+        }
 
 
+}
 
 
 
