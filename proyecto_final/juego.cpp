@@ -213,6 +213,21 @@ juego::juego(QWidget *parent) : QGraphicsView(parent) {
     timeravalancha = new QTimer(this);
     connect(timeravalancha, &QTimer::timeout,this,&juego::avalancha);
 
+    sonidoenemigo.setSource(QUrl("qrc:/enemigo_muere.wav"));
+    sonidoenemigo.setVolume(0.6f);
+
+    sonidogolpe.setSource(QUrl("qrc:/golpe_pepsiman.wav"));
+    sonidogolpe.setVolume(0.6f);
+
+    sonidolata.setSource(QUrl("qrc:/recoger_lata.wav"));
+    sonidolata.setVolume(0.6f);
+
+    musica.setSource(QUrl("qrc:/opening.wav"));
+    musica.setLoopCount(QSoundEffect::Infinite);
+    musica.setVolume(0.10f);
+    musica.play();
+
+
     reloj.start();
     iratitulo();
 
@@ -496,6 +511,7 @@ void juego::colisiones() {
             if(e->estacongelado()) continue;
             if(rl.intersects(cajade(e, 20, 8))) {
                 if(e->recibirimpacto(cfg.velmundo)) {
+                    sonidoenemigo.play();
                     items[e]->setPixmap(e == jefe ? pixcongeladojefe : pixcongelado);
                     if(e == jefe) {
                         pepsiman->sumarpuntos(500);
@@ -511,7 +527,7 @@ void juego::colisiones() {
             if (!usada) {
                 for (int j = objetos.size() - 1 ; j >= 0; --j) {
                     if(objetos[j]->gettipo() != tipoobjeto::zarigueya) continue;
-                    if (rl.intersects(cajade(objetos[j],8,8))) { quitar(objetos, j); usada= true; break; }
+                    if (rl.intersects(cajade(objetos[j],8,8))) { sonidoenemigo.play(); quitar(objetos, j); usada = true; break; }
                 }
 
             }
@@ -543,7 +559,7 @@ void juego::colisiones() {
             objetomundo *o = objetos[i];
             switch (o->gettipo()) {
             case tipoobjeto::lata:
-                if(rp.intersects(cajade(o, 4, 4))) {pepsiman->recogerlata();quitar(objetos, i); }
+                if(rp.intersects(cajade(o, 4, 4))) {pepsiman->recogerlata(); sonidolata.play(); quitar(objetos, i); }
                 break;
             case tipoobjeto::llantas:
                 if (rp.intersects(cajade(o, 10, 12))) golpe();
@@ -566,6 +582,7 @@ void juego::colisiones() {
 
 void juego::golpe() {
     if (!pepsiman->recibirgolpe()) return;
+    sonidogolpe.play();
     if (!pepsiman->estaviva())
         terminarnivel(estado::perdido, "pepsiman se quedo sin vidas\n\nR = reintentar el nivel");
 }

@@ -11,6 +11,11 @@
 #include <QTimer>
 #include <QVector>
 
+#include <QAudioOutput>
+#include <QMediaPlayer>
+#include <QSoundEffect>
+#include <QUrl>
+
 #include "animacion.h"
 #include "fondoparallax.h"
 #include "pepsiman.h"
@@ -56,6 +61,10 @@ private:
     QGraphicsScene *escena = nullptr;
     QTimer *timer = nullptr;
     QTimer *timeravalancha = nullptr;
+    QSoundEffect sonidoenemigo;
+    QSoundEffect sonidogolpe;
+    QSoundEffect sonidolata;
+    QSoundEffect musica;
     QElapsedTimer reloj;
     fondoparallax *fondo = nullptr;
     estado Estado = estado::titulo;

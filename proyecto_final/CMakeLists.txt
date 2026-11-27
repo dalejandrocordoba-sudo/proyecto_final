@@ -10,7 +10,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 # Módulos de Qt necesarios
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Multimedia)
 
 add_executable(proyecto_final
     main.cpp
@@ -50,7 +50,7 @@ add_executable(proyecto_final
     recursos.cpp
 )
 
-# Incrustar imágenes en la raíz "/" (para rutas como ":/pepsiman_pedalear_A_01.png")
+# Incrustar imágenes y audios en la raíz "/" (para rutas como ":/pepsiman_pedalear_A_01.png" o "qrc:/opening.wav")
 file(GLOB_RECURSE IMAGENES_RECURSOS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "recursos/*")
 qt_add_resources(proyecto_final "recursos_juego"
     PREFIX "/"
@@ -65,6 +65,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/recursos DESTINATION ${CMAKE_CURRENT_BINAR
 target_link_libraries(proyecto_final PRIVATE
     Qt6::Core
     Qt6::Widgets
+    Qt6::Multimedia
 )
 
 include(GNUInstallDirs)
